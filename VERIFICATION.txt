@@ -1,0 +1,18 @@
+Verified 2026-10-24 (Asia/Tokyo)
+Windows / Node.js v24.18.1 / Git 2.55.0.windows.3
+node --test tests/core.test.mjs: 14 passed, 0 failed
+node --check app.js: passed
+node --check core.js: passed
+node --check background.js: passed
+Chrome extension runtime and UI: NOT TESTED
+Existing source and tests unchanged; documentation and .gitignore added.
+
+Reverified 2026-10-24 (Asia/Tokyo) for GitHub source upload
+Linux (Codex cloud environment) / Node.js v24.19.0 / Git 2.52.0
+node --test tests/core.test.mjs: 14 passed, 0 failed
+node --check app.js: passed
+node --check core.js: passed
+node --check background.js: passed
+Chrome extension runtime and UI: NOT TESTED
+Source code, tests, icons, manifest, and HANDOFF.md match the uploaded archive.
+README.md updated for GitHub ZIP installation and this verification record added.

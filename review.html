@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Diff Review</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header class="topbar">
+  <a class="brand" href="review.html" aria-label="Diff Review ホーム"><span class="brand-icon" aria-hidden="true">±</span><span>Diff Review<small>変更をひとつずつ、自分で決める。</small></span></a>
+  <div class="top-actions"><span id="save-state" role="status">端末内で処理</span><button id="help" class="quiet">使い方</button><button id="open-project" class="quiet">作業を開く</button><button id="open-diff" class="primary">diffを開く <span>↗</span></button></div>
+</header>
+<input id="diff-input" type="file" accept=".diff,.patch,text/plain" hidden>
+<input id="project-input" type="file" accept=".json,.diffreview" hidden>
+<input id="original-input" type="file" multiple hidden>
+<input id="folder-input" type="file" webkitdirectory multiple hidden>
+<div id="notice" role="status" aria-live="polite" hidden></div>
+<main id="welcome" class="welcome">
+  <div class="eyebrow">LOCAL DIFF REVIEW</div><h1>その変更を、<br>採用するか決めよう。</h1>
+  <p class="intro">前後の文脈を読みながら、承認・否認・編集。<br>選んだ変更だけを、新しいdiffにまとめます。</p>
+  <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="diffファイルを選択、またはドロップ">
+    <div class="file-symbol" aria-hidden="true">−<br>＋</div><strong>diffファイルをここにドロップ</strong><span>またはクリックして選択 · .diff / .patch · UTF-8</span>
+  </section>
+  <div class="welcome-links"><button id="demo" class="text-button">サンプルで試す →</button><button id="resume" class="text-button" hidden>保存した作業を再開 →</button></div>
+  <div class="features"><div><b>01 <span>文脈と一緒に読む</span></b><p>前後5行を表示。元ファイルがあれば、さらに広く。</p></div><div><b>02 <span>一つずつ判断する</span></b><p>採否を選ぶ。その場で文章を直して採用する。</p></div><div><b>03 <span>結果を持ち出す</span></b><p>新しいdiffと、途中再開用の作業ファイル。</p></div></div>
+  <p class="privacy">ファイルの送信はありません。ブラウザ内だけで動作します。</p>
+</main>
+<div id="workspace" class="workspace" hidden>
+  <aside class="sidebar">
+    <div class="sidebar-head"><div class="eyebrow">REVIEW FILES</div><h2 id="project-name"></h2><span id="file-count"></span></div>
+    <label class="search-label"><span>⌕</span><input id="file-search" type="search" placeholder="ファイルを検索" aria-label="ファイル名で検索"></label>
+    <nav id="file-list" aria-label="変更ファイル"></nav>
+    <div class="sidebar-bottom"><p>変更前の文脈を広げる</p><div><button id="add-original">元ファイル</button><button id="add-folder">フォルダ</button></div><small id="original-count">元ファイルは未読込</small><button id="save-project" class="wide">作業ファイルを保存 ↓</button></div>
+  </aside>
+  <section class="review-area">
+    <div class="review-top"><div><div class="eyebrow">YOUR REVIEW</div><h1 id="current-path"></h1></div><button id="preview" class="primary">結果を確認・diff出力 →</button></div>
+    <div class="progress-row"><div class="progress-track" role="progressbar" aria-label="判断の進捗" aria-valuemin="0" aria-valuemax="100"><div id="progress-fill"></div></div><span id="progress-label"></span></div>
+    <div class="toolbar"><div class="filter-group" role="group" aria-label="表示する変更"><button id="filter-all" class="active">すべて <span id="all-count"></span></button><button id="filter-pending">未判断 <span id="pending-count"></span></button></div><div class="toolbar-right"><label>前後 <select id="context-size" aria-label="前後の表示行数"><option value="5">5行</option><option value="10">10行</option><option value="20">20行</option><option value="50">50行</option></select></label><label class="check"><input id="wrap" type="checkbox" checked>折り返す</label><button id="undo" title="元に戻す（Ctrl+Z）" aria-label="元に戻す">↶</button><button id="redo" title="やり直す（Ctrl+Shift+Z）" aria-label="やり直す">↷</button></div></div>
+    <div id="context-note" class="context-note"></div>
+    <div id="changes"></div>
+    <footer class="review-footer"><span><kbd>J</kbd> 次へ <kbd>K</kbd> 前へ <kbd>A</kbd> 承認 <kbd>R</kbd> 否認 <kbd>E</kbd> 編集 <kbd>P</kbd> 保留</span><button id="reject-pending" class="text-button">未判断をすべて否認</button></footer>
+  </section>
+</div>
+<dialog id="edit-dialog" class="edit-dialog">
+  <form method="dialog" id="edit-form"><div class="dialog-head"><div><div class="eyebrow">EDIT CHANGE</div><h2>編集して承認</h2></div><button value="cancel" class="close" aria-label="閉じる">×</button></div>
+  <p id="edit-path" class="muted"></p><label for="edit-text">採用する内容（この変更箇所だけを編集）</label><textarea id="edit-text" spellcheck="false"></textarea>
+  <label class="check"><input id="edit-newline" type="checkbox">最後の行の後に改行を付ける</label>
+  <p class="hint">空欄にすると、この箇所を削除します。行の追加はEnterで入力できます。</p>
+  <details open><summary>元の内容との比較</summary><div id="edit-comparison" class="code-view"></div></details>
+  <div class="dialog-actions"><button value="cancel">キャンセル</button><button id="confirm-edit" type="button" class="primary">この内容で承認</button></div></form>
+</dialog>
+<dialog id="split-dialog"><form method="dialog"><div class="dialog-head"><h2>変更を二つに分割</h2><button value="cancel" class="close" aria-label="閉じる">×</button></div><p>前半に含める行数を、それぞれ指定してください。</p><p class="hint">分割した二つの変更は、どちらも未判断に戻ります。</p><div class="split-fields"><label>削除側の行数<input id="split-old" type="number" min="0" step="1"></label><label>追加側の行数<input id="split-new" type="number" min="0" step="1"></label></div><div class="split-preview"><div><b>削除側</b><pre id="split-old-preview"></pre></div><div><b>追加側</b><pre id="split-new-preview"></pre></div></div><div class="dialog-actions"><button value="cancel">キャンセル</button><button id="confirm-split" type="button" class="primary">分割する</button></div></form></dialog>
+<dialog id="preview-dialog" class="preview-dialog"><form method="dialog"><div class="dialog-head"><div><div class="eyebrow">FINAL DIFF</div><h2>採用結果の確認</h2></div><button value="cancel" class="close" aria-label="閉じる">×</button></div><p id="summary"></p><div id="decision-list"></div><p id="export-warning" class="warning" hidden></p><pre id="patch-preview" class="patch-preview" tabindex="0"></pre><div class="dialog-actions"><button value="cancel">レビューに戻る</button><button id="download-diff" type="button" class="primary">diffをダウンロード ↓</button></div></form></dialog>
+<dialog id="help-dialog"><form method="dialog"><div class="dialog-head"><h2>Diff Review の使い方</h2><button class="close" aria-label="閉じる">×</button></div><ol><li><b>diffを開く</b><p>Gitなどで出力したUTF-8のunified diffを読み込みます。</p></li><li><b>文脈を読んで判断</b><p>緑が追加、赤が削除。連続した削除・追加を一つの変更として扱います。行番号は元ファイル・元の提案の番号です。近隣の文脈は変更前の内容です。</p></li><li><b>必要なら編集・分割</b><p>「編集して承認」で最終的な内容を指定できます。「分割」すると一部だけ採用できます。新規・削除ファイルはファイル全体で判断します。</p></li><li><b>結果を確認して出力</b><p>未判断を解消するとdiffを出力できます。否認した変更は含まれません。行番号は出力時に再計算します。</p></li></ol><h3>元ファイルと保存について</h3><p>diff内の文脈が足りない場合、変更前のファイル・フォルダを追加してください。一致する内容だけを読み込みます。自動保存はこの端末内の最新1件です。別端末では「作業ファイルを保存」「作業を開く」を使ってください。</p><p>UTF-8のテキストdiffに対応。CRLFはLFに正規化します。バイナリ、名前変更、モードだけの変更、空ファイルの作成・削除、マージ形式は未対応です。GitHubからの直接取り込みは含みません。</p><div class="dialog-actions"><button class="primary">閉じる</button></div></form></dialog>
+<script type="module" src="app.js"></script>
+</body></html>
